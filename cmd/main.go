@@ -8,7 +8,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
+	"time"
 )
 
 type item struct {
@@ -23,6 +25,19 @@ var (
 )
 
 func main() {
+	go func() {
+		var memStats runtime.MemStats
+		ticker := time.Tick(time.Millisecond)
+
+		for {
+			select {
+			case <-ticker:
+				runtime.ReadMemStats(&memStats)
+				log.Printf("TotalAlloc: %v, Alloc: %v\n", memStats.TotalAlloc, memStats.Alloc)
+			}
+		}
+	}()
+
 	var err error
 	if len(os.Args) != 2 {
 		err = fmt.Errorf("use: product_analyzer <file>")
@@ -48,12 +63,13 @@ func main() {
 
 	fmt.Printf("Most expensive product: %s. Top rated product: %s.\n",
 		mostExpensive.Product, highestRating.Product)
+	log.Print("success")
 }
 
 func processingCSV(filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	defer func() {
 		_ = file.Close()
@@ -61,11 +77,12 @@ func processingCSV(filePath string) error {
 
 	reader := csv.NewReader(file)
 
-	title, err := reader.Read()
+	//title, err := reader.Read()
+	_, err = reader.Read()
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	log.Print(title)
+	//log.Print(title)
 
 	for {
 		record, err := reader.Read()
@@ -78,11 +95,15 @@ func processingCSV(filePath string) error {
 
 		item, err := CSVToItem(record)
 		if err != nil {
-			return err
+			log.Fatal(err)
 		}
-		log.Print(item)
+		//log.Print(item)
 		isMostExpensive(item)
 		isHighestRating(item)
+	}
+
+	if err != nil {
+		log.Fatal(err)
 	}
 	return nil
 }
@@ -90,34 +111,36 @@ func processingCSV(filePath string) error {
 func processingJSON(filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 	defer func() {
 		_ = file.Close()
 	}()
 
 	decoder := json.NewDecoder(file)
-	t, err := decoder.Token()
+	//t, err := decoder.Token()
+	_, err = decoder.Token()
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	log.Printf("%T: %v\n", t, t)
+	//log.Printf("%T: %v\n", t, t)
 
 	for decoder.More() {
 		var i item
 		if err := decoder.Decode(&i); err != nil {
-			return err
+			log.Fatal(err)
 		}
-		log.Print(i)
+		//log.Print(i)
 		isMostExpensive(i)
 		isHighestRating(i)
 	}
 
-	t, err = decoder.Token()
+	//t, err = decoder.Token()
+	_, err = decoder.Token()
 	if err != nil {
 		return err
 	}
-	log.Printf("%T: %v\n", t, t)
+	//log.Printf("%T: %v\n", t, t)
 
 	return nil
 }
