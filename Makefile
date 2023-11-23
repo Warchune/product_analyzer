@@ -1,19 +1,21 @@
-CURDIR=$(shell pwd)
-BINDIR=${CURDIR}/bin
-APP=product_analyzer
-PACKAGE=${APP}/cmd
+CUR_DIR=$(shell pwd)
+BIN_DIR=${CUR_DIR}/bin
+APP_NAME=product_analyzer
+PACKAGE=${APP_NAME}/cmd
 FILE?=
+MOUNT=${BIN_DIR}/${FILE}:/app/${FILE}
+ENV_FILE=FILE=${FILE}
 
 run: docker_build
-	docker run -p 8090:8090 -v ${BINDIR}/${FILE}:/app/${FILE} -e FILE=${FILE} --name ${APP} ${APP}
+	docker run -p 8090:8090 -v ${MOUNT} -e ${ENV_FILE} --name ${APP_NAME} ${APP_NAME}
 
 docker_build: build
-	docker build -t ${APP} .
+	docker build -t ${APP_NAME} .
 
-build: bindir
-	go build -o ${BINDIR}/${APP} ${PACKAGE}
+build: bin_dir
+	go build -o ${BIN_DIR}/${APP_NAME} ${PACKAGE}
 
-bindir:
-	mkdir -p ${BINDIR}
+bin_dir:
+	mkdir -p ${BIN_DIR}
 
 
