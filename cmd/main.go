@@ -19,11 +19,6 @@ type item struct {
 	Rating  int    `json:"rating"`
 }
 
-var (
-	mostExpensive item
-	highestRating item
-)
-
 func main() {
 	go func() {
 		var memStats runtime.MemStats
@@ -48,11 +43,16 @@ func main() {
 	filePath := os.Args[1]
 	fileExtension := filepath.Ext(filePath)
 
+	var (
+		mostExpensive item
+		highestRating item
+	)
+
 	switch fileExtension {
 	case ".csv":
-		err = processingCSV(filePath)
+		err = processingCSV(filePath, &mostExpensive, &highestRating)
 	case ".json":
-		err = processingJSON(filePath)
+		err = processingJSON(filePath, &mostExpensive, &highestRating)
 	default:
 		err = fmt.Errorf("input file must have the extension csv/json")
 	}
@@ -66,7 +66,7 @@ func main() {
 	log.Print("success")
 }
 
-func processingCSV(filePath string) error {
+func processingCSV(filePath string, mostExpensive *item, highestRating *item) error {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -98,8 +98,8 @@ func processingCSV(filePath string) error {
 			log.Fatal(err)
 		}
 		//log.Print(item)
-		isMostExpensive(item)
-		isHighestRating(item)
+		isMostExpensive(mostExpensive, item)
+		isHighestRating(highestRating, item)
 	}
 
 	if err != nil {
@@ -108,7 +108,7 @@ func processingCSV(filePath string) error {
 	return nil
 }
 
-func processingJSON(filePath string) error {
+func processingJSON(filePath string, mostExpensive *item, highestRating *item) error {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
@@ -131,8 +131,8 @@ func processingJSON(filePath string) error {
 			log.Fatal(err)
 		}
 		//log.Print(i)
-		isMostExpensive(i)
-		isHighestRating(i)
+		isMostExpensive(mostExpensive, i)
+		isHighestRating(highestRating, i)
 	}
 
 	//t, err = decoder.Token()
@@ -162,14 +162,18 @@ func CSVToItem(recordCSV []string) (item, error) {
 	}, nil
 }
 
-func isMostExpensive(i item) {
+func isMostExpensive(mostExpensive *item, i item) {
 	if i.Price > mostExpensive.Price {
-		mostExpensive = i
+		mostExpensive.Product = i.Product
+		mostExpensive.Price = i.Price
+		mostExpensive.Rating = i.Rating
 	}
 }
 
-func isHighestRating(i item) {
+func isHighestRating(highestRating *item, i item) {
 	if i.Rating > highestRating.Rating {
-		highestRating = i
+		highestRating.Product = i.Product
+		highestRating.Price = i.Price
+		highestRating.Rating = i.Rating
 	}
 }

@@ -1,9 +1,10 @@
 CUR_DIR=$(shell pwd)
 BIN_DIR=${CUR_DIR}/bin
+SRC_DIR=${CUR_DIR}/src
 APP_NAME=product_analyzer
 PACKAGE=${APP_NAME}/cmd
 FILE?=
-MOUNT=${BIN_DIR}/${FILE}:/app/${FILE}
+MOUNT=${SRC_DIR}/${FILE}:/app/${FILE}
 ENV_FILE=FILE=${FILE}
 
 run: docker_build
