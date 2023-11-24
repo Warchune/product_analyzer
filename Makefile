@@ -1,6 +1,6 @@
 CUR_DIR=$(shell pwd)
 BIN_DIR=${CUR_DIR}/bin
-SRC_DIR=${CUR_DIR}/src
+SRC_DIR=${CUR_DIR}/data
 APP_NAME=product_analyzer
 PACKAGE=${APP_NAME}/cmd
 FILE?=

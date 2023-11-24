@@ -15,7 +15,7 @@ func TestProcessingCSV(t *testing.T) {
 	}{
 		{
 			name:                  "valid file csv",
-			inputFile:             "../src/db_test.csv",
+			inputFile:             "../data/db_test.csv",
 			expectedMostExpensive: "Печенье",
 			expectedHighestRating: "Печенье",
 			expectedErr:           nil,
@@ -41,7 +41,7 @@ func TestProcessingJSON(t *testing.T) {
 	}{
 		{
 			name:                  "valid file json",
-			inputFile:             "../src/db_test.json",
+			inputFile:             "../data/db_test.json",
 			expectedMostExpensive: "Варенье",
 			expectedHighestRating: "Варенье",
 			expectedErr:           nil,
